@@ -1,0 +1,8 @@
+node_modules/
+.ollama-ui.pid
+.ollama-ui.out.log
+.ollama-ui.err.log
+*.log
+
+__pycache__/
+*.pyc

@@ -1,0 +1,14 @@
+{
+  "name": "ollama-terminal-ui",
+  "version": "2.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Terminal-inspired local web UI for Ollama",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

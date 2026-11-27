@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark light">
+  <title>ollama://local — terminal</title>
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem('ollama-terminal.theme');
+        if (theme === 'light' || theme === 'dark') {
+          document.documentElement.dataset.theme = theme;
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="/vendor/katex/katex.min.css">
+  <link rel="stylesheet" href="/vendor/highlight.css">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="window-dots" aria-hidden="true">
+        <span class="dot red"></span>
+        <span class="dot amber"></span>
+        <span class="dot green"></span>
+      </div>
+      <div class="topbar-title">
+        <span class="brand">ollama<span class="brand-accent">:</span>//local</span>
+        <span class="status-pill" id="connStatus">
+          <span class="status-dot"></span>
+          <span id="connText">connecting</span>
+        </span>
+      </div>
+      <div class="topbar-actions">
+        <span class="endpoint" title="Ollama endpoint">127.0.0.1:11434</span>
+        <button type="button" class="theme-btn" id="themeToggle" title="Switch to light theme" aria-label="Switch to light theme" aria-pressed="false">
+          <span class="theme-icon" id="themeIcon" aria-hidden="true">☀️</span>
+          <span class="theme-label" id="themeLabel">Light</span>
+        </button>
+        <button type="button" class="icon-btn" id="settingsBtn" title="Settings (system prompt)" aria-label="Settings">⚙</button>
+        <button type="button" class="icon-btn" id="helpBtn" title="Help (show commands)" aria-label="Help">?</button>
+        <button type="button" class="icon-btn small sidebar-toggle-btn" id="sidebarToggle" title="Hide sidebar" aria-label="Hide sidebar" aria-controls="modelSidebar" aria-expanded="true">
+          <span id="sidebarToggleIcon" aria-hidden="true">‹</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="workspace" id="workspace">
+      <aside class="sidebar" id="modelSidebar">
+        <div class="sidebar-head">
+          <span class="section-label">// models</span>
+          <button type="button" class="icon-btn small" id="refreshModels" title="Refresh model list">↻</button>
+        </div>
+        <div class="model-list" id="modelList">
+          <div class="model-loading">scanning manifests…</div>
+        </div>
+        <div class="sidebar-foot">
+          <div><kbd>Alt</kbd> + <kbd>1–9</kbd> switch model</div>
+          <div><kbd>Ctrl</kbd>+<kbd>B</kbd> sidebar · <kbd>Ctrl</kbd>+<kbd>L</kbd> clear</div>
+          <div class="sidebar-muted" id="modelCount">—</div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="terminal" id="terminal" tabindex="-1">
+          <div class="welcome" id="welcome">
+            <pre class="ascii" aria-label="ollama">     ██ ██
+     ██ ██
+     ██ ██
+ ██  ██ ██  ██   █   █  ██
+█  █ ██ ██    █  ██ ██    █
+█  █ ██ ██  ███  █ █ █  ███
+█  █ ██ ██ █  █  █   █ █  █
+ ██  ██ ██  ███  █   █  ███</pre>
+            <div class="welcome-lines">
+              <p><span class="prompt-mark">❯</span> connected to <span class="accent">127.0.0.1:11434</span></p>
+              <p><span class="prompt-mark">❯</span> <span id="welcomeModels">waiting for local models…</span></p>
+              <p class="muted">Type a message, or try a command:</p>
+            </div>
+            <div class="welcome-grid">
+              <div><code>/list</code><span>installed models</span></div>
+              <div><code>/run 2</code><span>switch to model #2</span></div>
+              <div><code>/clear</code><span>clear the screen</span></div>
+              <div><code>/help</code><span>all commands</span></div>
+            </div>
+            <div class="welcome-keys">
+              <span><kbd>Enter</kbd> send</span>
+              <span><kbd>Shift</kbd>+<kbd>Enter</kbd> newline</span>
+              <span><kbd>Alt</kbd>+<kbd>1–9</kbd> switch</span>
+              <span><kbd>Esc</kbd> stop</span>
+            </div>
+          </div>
+          <div class="messages" id="messages" aria-live="polite"></div>
+        </div>
+
+        <form class="composer" id="composer" autocomplete="off">
+          <label class="sr-only" for="prompt">Message</label>
+          <div class="composer-sigil" aria-hidden="true">❯</div>
+          <textarea
+            id="prompt"
+            rows="1"
+            placeholder="Ask your local model anything…  (or type /help)"
+            spellcheck="false"
+            autocapitalize="off"
+          ></textarea>
+          <div class="composer-actions">
+            <button type="button" class="stop-btn hidden" id="stopBtn" title="Stop generation (Esc)">
+              <span class="stop-square"></span> stop
+            </button>
+            <button type="submit" class="send-btn" id="sendBtn" title="Send (Enter)">
+              send <span class="send-arrow">↵</span>
+            </button>
+          </div>
+        </form>
+
+        <div class="statusline">
+          <span class="status-model" id="activeModelLabel">no model</span>
+          <span class="status-sep">│</span>
+          <span id="statusInfo">ready</span>
+          <span class="status-spacer"></span>
+          <span class="status-hint"><kbd>/</kbd> commands</span>
+          <span class="status-hint"><kbd>Ctrl</kbd>+<kbd>L</kbd> clear</span>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <dialog class="settings-dialog" id="settingsDialog" aria-labelledby="settingsTitle">
+    <div class="settings-panel">
+      <div class="settings-head">
+        <div>
+          <h2 id="settingsTitle">Settings</h2>
+          <p class="settings-sub">Stored in this browser. Applied to every message.</p>
+        </div>
+        <button type="button" class="icon-btn small" id="closeSettings" aria-label="Close settings">✕</button>
+      </div>
+      <label class="settings-label" for="systemPrompt">System prompt</label>
+      <textarea
+        id="systemPrompt"
+        class="settings-textarea"
+        rows="9"
+        spellcheck="false"
+        placeholder="Persistent system instruction…"
+      ></textarea>
+      <p class="settings-help" id="systemPromptStatus">Saved automatically in localStorage.</p>
+      <div class="settings-actions">
+        <button type="button" class="ghost-btn" id="resetSystemPrompt">Reset to tutor default</button>
+        <span class="settings-spacer"></span>
+        <button type="button" class="send-btn" id="applySystemPrompt">Done</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="/vendor/katex/katex.min.js"></script>
+  <script src="/vendor/katex/auto-render.min.js"></script>
+  <script src="/vendor/marked.umd.js"></script>
+  <script src="/vendor/purify.min.js"></script>
+  <script src="/vendor/highlight.min.js"></script>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
