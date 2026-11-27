@@ -34,7 +34,3 @@ Ollama UI is a small local web app for chatting with AI models running through O
 - Press **Ctrl+B** or click the arrow at the top right to show or hide the sidebar.
 - Use `/list`, `/run 1`, `/clear`, or `/help` in the message field.
 - Run `.\ollama-ui.cmd stop` to stop the UI.
-
-## Tests
-
-Run `npm test` from the project folder.

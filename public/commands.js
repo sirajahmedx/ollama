@@ -1,6 +1,5 @@
 /**
  * Parse a terminal line into either a chat prompt or a CLI-style command.
- * Shared by the browser UI and the Node test suite.
  */
 export function parseInput(raw) {
   const text = String(raw ?? '').trim();

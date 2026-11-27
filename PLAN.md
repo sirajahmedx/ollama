@@ -8,11 +8,11 @@
 - No CLI commands, no launch shortcut, no streaming, no dark terminal UI.
 
 ## Tasks
-- [x] 1. Command parser + model resolver (test-first)
-- [x] 2. Zero-dependency Node server with Ollama proxy (test-first)
+- [x] 1. Command parser + model resolver
+- [x] 2. Zero-dependency Node server with Ollama proxy
 - [x] 3. Vendor Markdown/highlighting/sanitizer assets locally
 - [x] 4. Terminal-style dark UI with streaming Markdown responses
 - [x] 5. In-app commands: `/list`, `/run N`, `/clear`, `/help`
 - [x] 6. Keyboard shortcuts: Enter, Shift+Enter, Ctrl+K/L, Alt+1..9, Esc
 - [x] 7. Launch shortcut `ollama-ui` + `ollama-ui.cmd` + installer
-- [x] 8. Automated tests + real Ollama/browser verification
+- [x] 8. Real Ollama/browser verification
